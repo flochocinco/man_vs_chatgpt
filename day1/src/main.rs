@@ -5,6 +5,8 @@ fn main() {
 
     compute_number("input.txt".to_owned());
 
+    compute_number_part2("input_puzzle.txt".to_owned());
+
 }
 
 fn compute_number(file_path : String) -> i32 {
