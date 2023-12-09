@@ -85,30 +85,29 @@ fn read_numbers( input : &str) -> Vec<PartNumber> {
 }
 
 fn adjacent_to_symbol_above(current_part_ptr : &PartNumber, above_line : String) -> bool {
-    let current_part = current_part_ptr.to_owned();
-    let range_min;
-    if current_part.column > 0 {
-        range_min = current_part.column-1;
-    }else{
-        range_min = 0;
-    }
-    let range_max;
-    if above_line.len() > current_part.value.to_string().len()+2 {
-        range_max = current_part.value.to_string().len()+2;
-    }else{
-        range_max = above_line.len();
-    }
+    let range_min = get_range_min(current_part_ptr);
+    let range_max = get_range_max(above_line.len(), current_part_ptr);
+    
 
     for idx in range_min..range_max {
         let ch = above_line.chars().nth(idx).unwrap_or('.');
         if ch != '.' && !ch.is_digit(10) {
             return true;
         }
-
     }
     return false;
 }
 
+fn get_range_max(line_len : usize, part_number : &PartNumber) -> usize {
+    return std::cmp::min(line_len, part_number.column + part_number.value.to_string().len() + 1);
+}
+
+fn get_range_min(part_number : &PartNumber) -> usize {
+    if part_number.column > 0 {
+        return part_number.column - 1;
+    } 
+    return 0;
+}
 
 #[test]
 fn extract_numbers(){
@@ -144,4 +143,9 @@ fn test_adjacent_to_symbol_above_ko(){
 #[test]
 fn part1_tuto(){
     assert_eq!(part1("input_tuto.txt"), 4361);
+}
+
+#[test]
+fn part1_puzzle(){
+    assert_eq!(part1("input_puzzle.txt"), 459043);
 }
