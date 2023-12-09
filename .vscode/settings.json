@@ -1,0 +1,6 @@
+{
+    "cmake.configureOnOpen": true,
+    "rust-analyzer.linkedProjects": [
+        ".\\day2_chat_gpt\\Cargo.toml"
+    ]
+}
