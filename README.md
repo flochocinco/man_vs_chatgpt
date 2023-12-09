@@ -1,6 +1,7 @@
 # Rookie vs ChatGPT 3.5
 on the left corner:
 I, 10+ year experienced Java developper with small C/C++ knowledge, I never studied/coded in Rust :construction_worker:
+
 on the right corner:
 Chat GPT 3.5, the future for coding ?
 
