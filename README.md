@@ -7,14 +7,14 @@ Chat GPT 3.5, the future for coding ?
 
 Let's compete by implementing solution of Advent of Code 2023 in Rust. 
 
-# Note
+### Note
 I volunteerly let not compilable code as is. if someone wants to fix, feel free!
 
 Otherwise, navigate to "day" you want to test and run from there
 
 
 # Advancement
-| Day |                        Human                         |  Chat GPT                                |
+| Day |                        Rookie                         |  Chat GPT                                |
 |-----|:----------------------------------------------------:|:----------------------------------------:|
 | 1   |                     :star::star:                     | coming soon                              |
 | 2   |                     :star::star:                     | not compilable, see md file for details  |
