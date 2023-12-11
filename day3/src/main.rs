@@ -1,7 +1,8 @@
-use std::fs;
+use std::{fs, num::ParseIntError};
 
 fn main() {
     part1("input_tuto.txt");
+    part2("input_tuto.txt");
 }
 
 fn part1(file_path : &str) -> i32{
@@ -50,9 +51,114 @@ fn part1(file_path : &str) -> i32{
     return total_score;
 }
 
+fn part2(file_path : &str) -> i32{
+    println!("Day 2 - Part 2");
+    let contents = fs::read_to_string(file_path)
+        .expect("Should have been able to read the file");
+
+    let mut total_score = 0;
+    
+    for line_indexed in contents.lines().enumerate() {
+        //println!("{}", line_indexed.1);
+        let mut numbers : Vec<i32> = Vec::new();
+        //println!("line {}, star indices {:?}", line_indexed.0, get_star_indices(contents.lines().nth(line_indexed.0).unwrap().to_string()));
+        for idx in get_star_indices(contents.lines().nth(line_indexed.0).unwrap().to_string()){
+            //look above
+            if line_indexed.0 > 0 {
+                let o_line = contents.lines().nth(line_indexed.0-1);
+                for number in get_numbers_around(o_line.unwrap(), idx) {
+                    numbers.push(number);
+                }
+            }
+            for number in get_numbers_around(line_indexed.1, idx) {
+                numbers.push(number);
+            }
+            if !line_indexed.1.eq(contents.lines().last().unwrap()) {
+                //look below
+                let o_line = contents.lines().nth(line_indexed.0+1);
+                //println!("get_numbers_around({}, {idx})", o_line.unwrap());
+                for number in get_numbers_around(o_line.unwrap(), idx) {
+                    numbers.push(number);
+                }
+            }
+            if numbers.len() < 2 {
+                numbers.clear();
+                continue;
+            }
+            if numbers.first().unwrap() < numbers.last().unwrap() {
+                println!("{} * {}", numbers.first().unwrap(), numbers.last().unwrap());
+            }else{
+                println!("{} * {}", numbers.last().unwrap(), numbers.first().unwrap());
+            }
+            total_score += numbers.first().unwrap() * numbers.last().unwrap();
+            numbers.clear();
+        }
+
+        //total_score += String::from(id).parse::<i32>().unwrap();
+    }
+    println!("Total score: {}", total_score);
+    return total_score;
+}
+
 struct PartNumber {
     column : usize,
     value: i32,
+}
+
+fn get_number_around(line : &str, index: usize) -> Result<i32, ParseIntError> {
+    let mut start = index-1;
+    let mut end = index;
+    while start >= 0 {
+        //println!("start {start}");
+        if line.chars().nth(start).unwrap().is_digit(10){
+            if start > 0 {
+                start = start - 1;
+            }else{
+                break;
+            }
+        }else{
+            start = start + 1;
+            break;
+        }
+    }
+    while end < line.len() {
+        if line.chars().nth(end).unwrap().is_digit(10){
+            if index == 8 {
+                //println!("end {} - c {}", end, line.chars().nth(end).unwrap());
+            }
+            end = end + 1;
+        }else{
+            break;
+        }
+    }
+    //println!("{}..{} is -{}-", start, end, line[start..end].to_string());
+    return line[start..end].parse::<i32>();
+}
+
+fn get_numbers_around(line : &str, index: usize) -> Vec<i32>{
+    let mut numbers = Vec::new();
+    if index > 0 {
+        let get_number_around = get_number_around(line, index);
+        if get_number_around.is_ok() {
+            numbers.push(get_number_around.unwrap());
+        }
+    }
+    if index < line.len() {
+        let get_number_around = get_number_around(line, index+1);
+        if get_number_around.is_ok() {
+            numbers.push(get_number_around.unwrap());
+        }
+    }
+    //println!("line {} - index {} - numbers {:?}", line, index, numbers);
+    return numbers;
+}
+
+fn get_star_indices (line : String) -> Vec<usize> {
+    return line.chars().into_iter()
+        .enumerate()
+        .filter(|(_, c)| c.to_string() == "*")
+        .map(|(index, _)| index)
+        .collect::<Vec<_>>();
 }
 
 fn read_numbers( input : &str) -> Vec<PartNumber> {
@@ -148,4 +254,41 @@ fn part1_tuto(){
 #[test]
 fn part1_puzzle(){
     assert_eq!(part1("input_puzzle.txt"), 549908);
+}
+
+#[test]
+fn all_indexes() {
+    let test = "....*...*..*";
+    let indices = get_star_indices(test.to_string());
+    dbg!(indices); // 0, 3, 4
+}
+
+#[test]
+fn number_around() {
+    assert_eq!(get_number_around("467..114..", 2), Ok(467));
+    assert_eq!(get_number_around("..35..633.", 6), Ok(633));
+    assert_eq!(get_number_around("..35..633", 6), Ok(633));
+    assert_eq!(get_number_around("35..633.", 1), Ok(35));
+}
+
+#[test]
+fn part2_tuto(){
+    assert_eq!(part2("input_tuto.txt"), 467835);
+}
+
+#[test]
+fn part2_exrtact(){
+    assert_eq!(part2("input_extract.txt"), 124*246);
+}
+
+#[test]
+fn part2_puzzle(){
+    assert_eq!(part2("input_puzzle.txt"), 81166799);
+}
+
+#[test]
+fn part2_both_below(){
+    let numbers = get_numbers_around(".883.561..*....428.........../14...742...........@.....654.....809../716.......*456.....=....*........$..............................607....", 4);
+    println!("{:?}", numbers);
+    assert_eq!(numbers.len(), 2);
 }
