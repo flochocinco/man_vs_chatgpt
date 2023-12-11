@@ -15,41 +15,33 @@ fn part1(file_path : &str) -> i32{
         let part_numbers = read_numbers(line_indexed.1);
         for part_number in part_numbers {
             let mut o_line;
+            //symbol one line above ?
             if line_indexed.0 > 0 {
                 o_line = contents.lines().nth(line_indexed.0-1);
                 if o_line.is_some() && adjacent_to_symbol_above(&part_number, o_line.unwrap().to_string()){
-                    println!("Adding {}", part_number.value);
+                    //print!("{},", part_number.value);
                     total_score += part_number.value;
                     continue;
                 }
             }
 
-            if line_indexed.0 > 0 {
-                let ch = line_indexed.1.chars().nth(line_indexed.0-1).unwrap_or('.');
-                if ch != '.' && !ch.is_digit(10) {
-                    println!("Adding {}", part_number.value);
-                    total_score += part_number.value;
-                    continue;
-                }
+            //symbol on same line ?
+            if adjacent_to_symbol_above(&part_number, line_indexed.1.to_string()) {
+                //print!("{},", part_number.value);
+                total_score += part_number.value;
+                continue;
             }
 
-            if line_indexed.0 < line_indexed.1.len()-1 {
-                let ch = line_indexed.1.chars().nth(line_indexed.0+1).unwrap_or('.');
-                if ch != '.' && !ch.is_digit(10) {
-                    println!("Adding {}", part_number.value);
-                    total_score += part_number.value;
-                    continue;
-                }
-            }
-
+            //symbole one line below ?
             if line_indexed.1.to_string() != contents.lines().last().unwrap().to_string() {
                 o_line = contents.lines().nth(line_indexed.0+1);
                 if o_line.is_some() && adjacent_to_symbol_above(&part_number, o_line.unwrap().to_string()){
-                    println!("Adding {}", part_number.value);
+                    //print!("{},", part_number.value);
                     total_score += part_number.value;
                     continue;
                 }
             }
+            //println!("Number {}, column {} not adjacent", part_number.value, part_number.column);
         }
 
         //total_score += String::from(id).parse::<i32>().unwrap();
@@ -79,6 +71,14 @@ fn read_numbers( input : &str) -> Vec<PartNumber> {
             numbers.push(part_number);
             tmp = String::from("");
         }
+    }
+
+    if !tmp.is_empty() {
+        let part_number = PartNumber {
+            column : input.to_string().len() - tmp.len(),
+            value : tmp.parse::<i32>().unwrap()
+        };
+        numbers.push(part_number);
     }
 
     return numbers;
@@ -111,13 +111,13 @@ fn get_range_min(part_number : &PartNumber) -> usize {
 
 #[test]
 fn extract_numbers(){
-    let line  = "467..114..";
+    let line  = "467....114";
     let part_numbers = read_numbers(line);
     assert_eq!(part_numbers.len(), 2);
     assert_eq!(part_numbers.first().unwrap().value, 467);
     assert_eq!(part_numbers.first().unwrap().column, 0);
     assert_eq!(part_numbers.last().unwrap().value, 114);
-    assert_eq!(part_numbers.last().unwrap().column, 5);
+    assert_eq!(part_numbers.last().unwrap().column, 7);
 }
 
 #[test]
@@ -147,5 +147,5 @@ fn part1_tuto(){
 
 #[test]
 fn part1_puzzle(){
-    assert_eq!(part1("input_puzzle.txt"), 459043);
+    assert_eq!(part1("input_puzzle.txt"), 549908);
 }
