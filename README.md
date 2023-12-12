@@ -14,11 +14,11 @@ Otherwise, navigate to "day" you want to test and run from there
 
 
 # Advancement
-| Day |                        Rookie                         |  Chat GPT                                |
+| Day |                        Rookie                        |  Chat GPT                                |
 |-----|:----------------------------------------------------:|:----------------------------------------:|
 | 1   |                     :star::star:                     | coming soon                              |
 | 2   |                     :star::star:                     | not compilable, see md file for details  |
-| 3   |                                                      | run, wrong result, see md file for details  |
+| 3   |                     :star::star:                     | run, wrong result, see md file for details  |
 
 
 # For Developpers

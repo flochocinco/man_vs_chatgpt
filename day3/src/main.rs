@@ -85,11 +85,7 @@ fn part2(file_path : &str) -> i32{
                 numbers.clear();
                 continue;
             }
-            if numbers.first().unwrap() < numbers.last().unwrap() {
-                println!("{} * {}", numbers.first().unwrap(), numbers.last().unwrap());
-            }else{
-                println!("{} * {}", numbers.last().unwrap(), numbers.first().unwrap());
-            }
+            //println!("{} * {}", numbers.first().unwrap(), numbers.last().unwrap());
             total_score += numbers.first().unwrap() * numbers.last().unwrap();
             numbers.clear();
         }
@@ -100,12 +96,13 @@ fn part2(file_path : &str) -> i32{
     return total_score;
 }
 
+#[derive(PartialEq)]
 struct PartNumber {
     column : usize,
     value: i32,
 }
 
-fn get_number_around(line : &str, index: usize) -> Result<i32, ParseIntError> {
+fn get_number_around(line : &str, index: usize) -> Result<PartNumber, &'static str> {
     let mut start = index-1;
     let mut end = index;
     while start >= 0 {
@@ -123,16 +120,18 @@ fn get_number_around(line : &str, index: usize) -> Result<i32, ParseIntError> {
     }
     while end < line.len() {
         if line.chars().nth(end).unwrap().is_digit(10){
-            if index == 8 {
-                //println!("end {} - c {}", end, line.chars().nth(end).unwrap());
-            }
             end = end + 1;
         }else{
             break;
         }
     }
     //println!("{}..{} is -{}-", start, end, line[start..end].to_string());
-    return line[start..end].parse::<i32>();
+    let value = line[start..end].parse::<i32>();
+    if value.is_err() {
+        return Err("");
+    }
+    let pn = PartNumber { column:start, value: value.unwrap_or(0)};
+    return Ok(pn);
 }
 
 fn get_numbers_around(line : &str, index: usize) -> Vec<i32>{
@@ -146,11 +145,13 @@ fn get_numbers_around(line : &str, index: usize) -> Vec<i32>{
     if index < line.len() {
         let get_number_around = get_number_around(line, index+1);
         if get_number_around.is_ok() {
-            numbers.push(get_number_around.unwrap());
+            if !numbers.contains(get_number_around.as_ref().unwrap()) {
+                numbers.push(get_number_around.unwrap());
+            }
         }
     }
     //println!("line {} - index {} - numbers {:?}", line, index, numbers);
-    return numbers;
+    return numbers.iter().map(|pn| pn.value).collect();
 }
 
 fn get_star_indices (line : String) -> Vec<usize> {
@@ -265,10 +266,10 @@ fn all_indexes() {
 
 #[test]
 fn number_around() {
-    assert_eq!(get_number_around("467..114..", 2), Ok(467));
-    assert_eq!(get_number_around("..35..633.", 6), Ok(633));
-    assert_eq!(get_number_around("..35..633", 6), Ok(633));
-    assert_eq!(get_number_around("35..633.", 1), Ok(35));
+    assert_eq!(get_number_around("467..114..", 2).unwrap().value, 467);
+    assert_eq!(get_number_around("..35..633.", 6).unwrap().value, 633);
+    assert_eq!(get_number_around("..35..633", 6).unwrap().value, 633);
+    assert_eq!(get_number_around("35..633.", 1).unwrap().value, 35);
 }
 
 #[test]
@@ -291,4 +292,26 @@ fn part2_both_below(){
     let numbers = get_numbers_around(".883.561..*....428.........../14...742...........@.....654.....809../716.......*456.....=....*........$..............................607....", 4);
     println!("{:?}", numbers);
     assert_eq!(numbers.len(), 2);
+}
+
+#[test]
+fn part2_both_duplicate(){
+    let numbers = get_numbers_around("...............874...129.......................739*971.......*.......176.............3.@...........*..219..40..........#.............168....", 70);
+    println!("{:?}", numbers);
+    assert_eq!(numbers.len(), 1);
+}
+
+#[test]
+fn test_contains(){
+    let mut numbers = Vec::new();
+    let part_number = PartNumber {
+        column : 1,
+        value : 664
+    };
+    numbers.push(part_number);
+    let part_number2 = PartNumber {
+        column : 1,
+        value : 664
+    };
+    assert_eq!(numbers.contains(&part_number2), true);
 }
